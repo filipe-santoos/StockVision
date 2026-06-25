@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>StockVision - Controle de Estoque</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body th:class="${estoqueSelecionado != null || (busca != null && !busca.isEmpty())} ? 'has-content' : ''">
+
+<div class="sidebar" id="sidebarMenu">
+    <a href="/estoque" class="btn-home">🏠 Home (Busca Geral)</a>
+
+    <h2>Meus Estoques</h2>
+    <ul class="sidebar-menu">
+        <a th:each="est : ${estoques}" th:href="@{/estoque(estoqueId=${est.id})}">
+            <li th:text="'📍 ' + ${est.nome}" th:class="${estoqueSelecionado != null && estoqueSelecionado.id == est.id} ? 'active' : ''"></li>
+        </a>
+    </ul>
+
+    <form action="/estoque/novo-local" method="POST" class="form-novo-estoque">
+        <input type="text" name="nomeEstoque" placeholder="Nome do novo estoque..." required>
+        <button type="submit" class="btn-novo-estoque">+ Criar Novo Estoque</button>
+    </form>
+</div>
+
+<div class="main-container">
+    <button class="toggle-menu-btn" onclick="toggleSidebar()">☰</button>
+
+    <div class="search-wrapper">
+        <h1 th:if="${estoqueSelecionado == null && busca == null}">O que você está procurando no estoque?</h1>
+        <h1 th:if="${busca != null && estoqueSelecionado == null}">Resultados da busca por: "<span th:text="${busca}"></span>"</h1>
+        <h1 th:if="${estoqueSelecionado != null}" th:text="${estoqueSelecionado.nome}"></h1>
+
+        <div class="search-box">
+            <form action="/estoque" method="GET" style="display: flex; width: 100%; margin: 0;">
+                <input type="text" name="busca" th:value="${busca}" placeholder="Digite o nome do material para buscar em TODOS os estoques...">
+                <button type="submit">Buscar</button>
+            </form>
+        </div>
+
+        <div class="dashboard-card" th:if="${estoqueSelecionado != null}">
+            <h3>Adicionar Item a este Estoque</h3>
+            <form action="/estoque/adicionar-item" method="POST" class="form-inline">
+                <input type="hidden" name="estoqueId" th:value="${estoqueSelecionado.id}">
+                <input type="text" name="nome" placeholder="Nome do Material" required>
+                <input type="number" name="quantidade" placeholder="Qtd Inicial" required style="max-width: 120px;">
+                <input type="text" name="localizacaoExata" placeholder="Ex: Prateleira A, Setor F" required>
+                <button type="submit">Cadastrar Item</button>
+            </form>
+        </div>
+
+        <div class="dashboard-card" th:if="${materiais != null}">
+            <h3 th:text="${#lists.isEmpty(materiais)} ? 'Nenhum material encontrado' : 'Materiais Disponíveis'"></h3>
+
+            <table class="custom-table" th:if="${!#lists.isEmpty(materiais)}">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome do Material</th>
+                    <th>Quantidade</th>
+                    <th>Onde Encontrar (Localização)</th> <th>Movimentação</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="material : ${materiais}">
+                    <td th:text="${material.id}"></td>
+                    <td th:text="${material.nome}" style="font-weight: 600;"></td>
+                    <td th:text="${material.quantidade}"></td>
+
+                    <td>
+                        <span th:text="${material.estoqueLocal != null ? material.estoqueLocal.nome : 'Sem Setor'}"></span>
+                        <span th:if="${material.localizacaoExata != null}"
+                              th:text="' ➔ (' + ${material.localizacaoExata} + ')'"
+                              style="color: #a0aec0; font-size: 13px;"></span>
+                    </td>
+
+                    <td>
+                        <form action="/estoque/adicionar-unidade" method="POST" style="display: inline-block;">
+                            <input type="hidden" name="id" th:value="${material.id}">
+                            <input type="hidden" name="estoqueId" th:value="${estoqueSelecionado != null ? estoqueSelecionado.id : ''}">
+                            <button type="submit" class="btn-action btn-add">+ Adicionar 1</button>
+                        </form>
+                        <form action="/estoque/baixa" method="POST" style="display: inline-block;">
+                            <input type="hidden" name="id" th:value="${material.id}">
+                            <input type="hidden" name="estoqueId" th:value="${estoqueSelecionado != null ? estoqueSelecionado.id : ''}">
+                            <button type="submit" class="btn-action btn-remove">- Remover 1</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebarMenu');
+        sidebar.classList.toggle('collapsed');
+    }
+</script>
+</body>
+</html>
