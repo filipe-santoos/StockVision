@@ -1,4 +1,4 @@
-# Controle de service.Estoque em Java
+# Controle de Estoque em Java
 
 Sistema simples para gerenciamento de materiais, desenvolvido em Java para fins de estudo.
 
@@ -7,12 +7,11 @@ Sistema simples para gerenciamento de materiais, desenvolvido em Java para fins 
 * Listagem completa de itens.
 * Busca por nome ou localização.
 * Alerta de estoque crítico.
-* Persistência de dados em arquivo CSV.
 
 ## 🛠️ Tecnologias Utilizadas
-* Java (JDK 17 ou superior)
+* Java (JDK 25)
 * IntelliJ IDEA
-* Manipulação de arquivos (CSV)
+* PostgreSQL
 
 ## 📦 Como rodar o projeto
 1. Clone o repositorio.
